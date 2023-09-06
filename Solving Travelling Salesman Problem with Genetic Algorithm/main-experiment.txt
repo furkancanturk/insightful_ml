@@ -1,0 +1,43 @@
+from City import City
+from CityManager import CityManager
+from RouteManager import RouteManager
+from GeneticAlgorithmSolver import GeneticAlgorithmSolver
+import random
+import numpy as np
+import pandas as pd
+
+if __name__ == '__main__':
+    cm = CityManager()
+    cm.build_country()
+
+    
+    population_size_lst = [25, 50, 100, 150, 200]  
+    mutation_rate_lst =np.arange(0, 1.2, 0.2)  
+    tournament_size_lst = [2, 3, 4, 5]
+    elitism_lst = [True, False]
+    n_generation_lst = [25, 50, 100, 200]
+    seeds = np.arange(1,6,1)
+    
+    results = {}
+    parameters = []
+    for e in elitism_lst:
+        for ps in population_size_lst:
+            for mr in mutation_rate_lst:
+                for ts in tournament_size_lst:
+                    for g in n_generation_lst:
+                        best_dist_lst = []
+                        for seed in seeds:
+                            rm = RouteManager(cm, ps)
+                            print([int(e), ps, round(mr,1), ts, g, seed]) 
+
+                            gas = GeneticAlgorithmSolver(cm, ps, mr, ts, e, g, seed)
+                            rm = gas.solve(rm)
+                            parameters.append([int(e), ps, round(mr,1), ts, g, seed])
+                            best_dist = rm.find_best_route().calc_route_distance()
+                            #print(best_dist)
+                            best_dist_lst.append(best_dist)
+                            
+                        results[(ps, mr, ts, e, g)] = best_dist_lst
+
+    pd.DataFrame(np.array(list(results.values()))).to_excel("results.xlsx")
+    pd.DataFrame(np.array(list(parameters))).to_excel("parameters.xlsx")
