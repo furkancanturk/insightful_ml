@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 # MS Word files
-.docx
+*.docx
